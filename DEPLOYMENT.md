@@ -76,36 +76,44 @@ git push -u origin main
 
 ---
 
-### 第三步：部署后端到 Railway
+### 第三步：部署后端到 Render
 
-1. **登录 Railway**
-   - 访问 https://railway.app
+1. **登录 Render**
+   - 访问 https://render.com
    - 使用 GitHub 账号登录
 
-2. **创建新项目**
-   - 点击 "New Project"
-   - 选择 "Deploy from GitHub repo"
+2. **创建 Web Service**
+   - 点击 "New +" → "Web Service"
+   - 选择 "Build and deploy from a Git repository"
+   - 点击 "Connect" 连接你的 GitHub 仓库
    - 选择你的 `time-tracking-app` 仓库
 
-3. **配置后端**
-   - Railway 会自动检测到 Node.js 项目
-   - 点击项目，进入设置
-   - 添加环境变量：
-     - `NODE_ENV` = `production`
-     - `PORT` = `3000`
-     - `DATABASE_URL` = `你的 Render PostgreSQL URL`（从第二步复制的）
-     - `CORS_ORIGIN` = `*` （暂时允许所有来源）
-
-4. **设置根目录**
-   - 在 Settings → Service
+3. **配置后端服务**
+   - Name: `time-tracking-backend`
+   - Region: 选择离你最近的（如 Oregon）
+   - Branch: `main`
    - Root Directory: `backend`
+   - Runtime: `Node`
    - Build Command: `npm install && npx prisma generate && npm run build`
    - Start Command: `npx prisma migrate deploy && npm run start`
+   - Plan: **Free**（免费套餐）
+
+4. **添加环境变量**
+   - 在 "Environment" 部分，点击 "Add Environment Variable"
+   - 添加以下变量：
+     - `NODE_ENV` = `production`
+     - `DATABASE_URL` = `你的 Render PostgreSQL URL`（从第二步复制的）
+     - `CORS_ORIGIN` = `*` （暂时允许所有来源，注意不要有空格或换行）
 
 5. **部署**
-   - 点击 "Deploy"
-   - 等待部署完成（约 2-3 分钟）
-   - 复制生成的 URL，类似：`https://your-app.railway.app`
+   - 点击 "Create Web Service"
+   - 等待部署完成（首次部署约 3-5 分钟）
+   - 复制生成的 URL，类似：`https://time-tracking-backend.onrender.com`
+
+**重要提示：**
+- Render 免费套餐在 15 分钟无活动后会休眠
+- 首次访问会有 30-50 秒的冷启动时间
+- 确保环境变量中没有多余的空格或换行符
 
 ---
 
@@ -131,7 +139,7 @@ git push -u origin main
    - 点击 "Environment Variables"
    - 添加：
      - Name: `VITE_API_URL`
-     - Value: `https://your-app.railway.app/api` （替换为你的 Railway URL）
+     - Value: `https://time-tracking-backend.onrender.com/api` （替换为你的 Render 后端 URL）
 
 5. **部署**
    - 点击 "Deploy"
@@ -142,11 +150,13 @@ git push -u origin main
 
 ### 第五步：更新 CORS 配置
 
-1. **回到 Railway**
-   - 进入你的后端项目
+1. **回到 Render**
+   - 进入你的后端 Web Service
+   - 点击 "Environment"
    - 更新环境变量 `CORS_ORIGIN`
    - 改为你的 Vercel URL：`https://your-app.vercel.app`
-   - 保存并重新部署
+   - **重要：确保 URL 没有尾部斜杠，没有空格或换行符**
+   - 保存后会自动重新部署
 
 ---
 
@@ -155,9 +165,11 @@ git push -u origin main
 现在你的应用已经上线了！
 
 - **前端地址**：`https://your-app.vercel.app`
-- **后端地址**：`https://your-app.railway.app`
+- **后端地址**：`https://time-tracking-backend.onrender.com`
 
 分享前端地址给朋友，他们就可以访问你的时间追踪应用了！
+
+**注意：** Render 免费套餐首次访问会有 30-50 秒的冷启动时间，这是正常现象。
 
 ---
 
@@ -167,15 +179,16 @@ git push -u origin main
 
 **检查：**
 - Vercel 的 `VITE_API_URL` 环境变量是否正确
-- Railway 的 `CORS_ORIGIN` 是否包含 Vercel 的域名
+- Render 的 `CORS_ORIGIN` 是否包含 Vercel 的域名
 - 后端是否成功部署并运行
+- 等待 30-50 秒让 Render 服务从休眠中唤醒
 
 ### 2. 数据库连接失败
 
 **检查：**
 - Render 数据库是否正常运行
-- `DATABASE_URL` 环境变量是否正确配置
-- 数据库迁移是否成功执行（查看 Railway 部署日志）
+- `DATABASE_URL` 环境变量是否正确配置（注意不要有空格或换行符）
+- 数据库迁移是否成功执行（查看 Render 部署日志）
 
 ### 3. 部署失败
 
@@ -183,6 +196,17 @@ git push -u origin main
 - `package.json` 中的脚本是否正确
 - Node.js 版本是否兼容（建议 18+）
 - 查看部署日志中的错误信息
+- 确保所有环境变量都正确设置，没有多余的空格或换行符
+
+### 4. CORS 错误（ERR_INVALID_CHAR）
+
+**原因：** 环境变量中包含无效字符（空格、换行符等）
+
+**解决方法：**
+- 在 Render 的 Environment 设置中，重新输入 `CORS_ORIGIN` 的值
+- 确保值是纯文本，没有前后空格
+- 例如：`https://your-app.vercel.app`（不要有空格或换行）
+- 保存后等待自动重新部署
 
 ---
 
@@ -193,17 +217,18 @@ git push -u origin main
 - 查看部署历史和日志
 - 每次 Git push 会自动重新部署
 
-### Railway
-- 访问 https://railway.app/dashboard
+### Render
+- 访问 https://dashboard.render.com
 - 查看服务状态和日志
 - 监控资源使用情况
+- 免费套餐在 15 分钟无活动后会休眠
 
 ---
 
 ## 💡 优化建议
 
 ### 1. 自定义域名
-- Vercel 和 Railway 都支持绑定自定义域名
+- Vercel 和 Render 都支持绑定自定义域名
 - 在各自的设置中添加域名即可
 
 ### 2. 数据库升级
@@ -216,15 +241,21 @@ Render 免费数据库 90 天后会过期：
 - 配置缓存策略
 - 压缩静态资源
 
+### 4. 避免冷启动
+Render 免费套餐会休眠：
+- 使用 UptimeRobot 等服务定期 ping 你的后端
+- 或升级到付费版本（$7/月起）保持服务始终运行
+
 ---
 
 ## 🆘 需要帮助？
 
 如果遇到问题：
-1. 查看部署日志
-2. 检查环境变量配置
+1. 查看部署日志（Render 和 Vercel 的 Logs 页面）
+2. 检查环境变量配置（确保没有空格或换行符）
 3. 确认代码已推送到 GitHub
-4. 查看 Vercel/Railway 的文档
+4. 查看 Vercel/Render 的文档
+5. 等待足够的时间让服务从休眠中唤醒（30-50 秒）
 
 ---
 

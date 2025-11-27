@@ -8,10 +8,16 @@ const PORT = process.env.PORT || 3000
 
 // Middleware
 app.use(helmet())
+
+// CORS configuration with validation
+const corsOrigin = process.env.CORS_ORIGIN?.trim() || 'http://localhost:5173'
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
-  credentials: true,
+  origin: corsOrigin === '*' ? '*' : corsOrigin,
+  credentials: corsOrigin !== '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }))
+
 app.use(express.json())
 
 // Health check
