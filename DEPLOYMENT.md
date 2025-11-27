@@ -1,4 +1,4 @@
-# 部署指南
+  # 部署指南
 
 本指南将帮助你将时间追踪应用部署到云端，让别人可以访问。
 
@@ -10,7 +10,7 @@
    - [GitHub](https://github.com) - 代码托管
 
 2. **安装 Git**（如果还没有）：
-   - 下载：https://git-scm.com/downloads
+   - 下载：
 
 ---
 
@@ -47,7 +47,36 @@ git push -u origin main
 
 ---
 
-### 第二步：部署后端到 Railway
+### 第二步：创建 PostgreSQL 数据库（Render）
+
+1. **登录 Render**
+   - 访问 https://render.com
+   - 使用 GitHub 账号登录
+
+2. **创建 PostgreSQL 数据库**
+   - 点击 "New +" → "PostgreSQL"
+   - Name: `time-tracking-db`
+   - Database: `time_tracking_db`
+   - User: 自动生成
+   - Region: 选择离你最近的（如 Oregon）
+   - PostgreSQL Version: 选择最新版本
+   - Plan: **Free**（免费套餐）
+   - 点击 "Create Database"
+
+3. **获取数据库连接信息**
+   - 数据库创建完成后，进入数据库详情页
+   - 找到 "Connections" 部分
+   - 复制 **External Database URL**，格式类似：
+     ```
+     postgresql://user:password@host.render.com/database
+     ```
+   - 保存这个 URL，后面会用到
+
+**注意：** Render 免费数据库会在 90 天后过期，但数据会保留。如需长期使用，可升级到付费版本。
+
+---
+
+### 第三步：部署后端到 Railway
 
 1. **登录 Railway**
    - 访问 https://railway.app
@@ -64,14 +93,14 @@ git push -u origin main
    - 添加环境变量：
      - `NODE_ENV` = `production`
      - `PORT` = `3000`
-     - `DATABASE_URL` = `file:./data/time-tracking.db`
+     - `DATABASE_URL` = `你的 Render PostgreSQL URL`（从第二步复制的）
      - `CORS_ORIGIN` = `*` （暂时允许所有来源）
 
 4. **设置根目录**
    - 在 Settings → Service
    - Root Directory: `backend`
-   - Build Command: `npm install && npm run build`
-   - Start Command: `npm run start`
+   - Build Command: `npm install && npx prisma generate && npm run build`
+   - Start Command: `npx prisma migrate deploy && npm run start`
 
 5. **部署**
    - 点击 "Deploy"
@@ -80,7 +109,7 @@ git push -u origin main
 
 ---
 
-### 第三步：部署前端到 Vercel
+### 第四步：部署前端到 Vercel
 
 1. **登录 Vercel**
    - 访问 https://vercel.com
@@ -111,7 +140,7 @@ git push -u origin main
 
 ---
 
-### 第四步：更新 CORS 配置
+### 第五步：更新 CORS 配置
 
 1. **回到 Railway**
    - 进入你的后端项目
@@ -141,11 +170,12 @@ git push -u origin main
 - Railway 的 `CORS_ORIGIN` 是否包含 Vercel 的域名
 - 后端是否成功部署并运行
 
-### 2. 数据丢失
+### 2. 数据库连接失败
 
-**原因：** Railway 免费版重启后会清空文件系统
-
-**解决：** 升级到持久化存储，或使用外部数据库（PostgreSQL）
+**检查：**
+- Render 数据库是否正常运行
+- `DATABASE_URL` 环境变量是否正确配置
+- 数据库迁移是否成功执行（查看 Railway 部署日志）
 
 ### 3. 部署失败
 
@@ -176,10 +206,10 @@ git push -u origin main
 - Vercel 和 Railway 都支持绑定自定义域名
 - 在各自的设置中添加域名即可
 
-### 2. 数据持久化
-如果需要数据永久保存：
-- Railway: 添加 PostgreSQL 数据库
-- 修改后端代码使用 PostgreSQL
+### 2. 数据库升级
+Render 免费数据库 90 天后会过期：
+- 升级到 Render 付费版本（$7/月起）
+- 或迁移到其他数据库服务（如 Supabase、PlanetScale）
 
 ### 3. 性能优化
 - 启用 Vercel 的 CDN 加速
