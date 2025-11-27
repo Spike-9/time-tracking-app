@@ -19,6 +19,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' })
 })
 
+// Root path
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', message: 'Time Tracking API' })
+})
+
 // API routes
 app.use('/api', router)
 
