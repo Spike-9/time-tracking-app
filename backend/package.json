@@ -6,7 +6,9 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:push": "prisma db push",
+    "db:init": "node scripts/init-db.js"
   },
   "dependencies": {
     "express": "^4.18.2",
