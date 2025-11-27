@@ -19,7 +19,7 @@ export interface Task {
   startTime: string // ISO8601
   endTime: string | null
   duration: number | null // 分钟
-  status: TaskStatus
+  status: TaskStatus | 'running' | 'completed'
   createdAt: string
   updatedAt: string
 }
