@@ -25,7 +25,7 @@ export interface Task {
 }
 
 export interface RunningTask extends Task {
-  status: TaskStatus.RUNNING
+  status: TaskStatus.RUNNING | 'running'
   elapsedMinutes: number // 前端计算的实时时长
 }
 

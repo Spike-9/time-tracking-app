@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react'
-import { AppState, AppAction, Task, RunningTask, DailyStats, WeeklyStats } from '../types'
+import { AppState, AppAction } from '../types'
 
 const initialState: AppState = {
   currentTask: null,
