@@ -20,7 +20,14 @@ export function HomePage() {
     try {
       const task = await api.getCurrentTask()
       if (task) {
-        dispatch({ type: 'START_TASK', payload: { ...task, elapsedMinutes: 0 } })
+        dispatch({ 
+          type: 'START_TASK', 
+          payload: { 
+            ...task, 
+            status: 'running' as const,
+            elapsedMinutes: 0 
+          } 
+        })
       }
     } catch (error) {
       console.error('Failed to load current task:', error)
@@ -31,7 +38,14 @@ export function HomePage() {
     setLoading(true)
     try {
       const task = await api.startTask(data)
-      dispatch({ type: 'START_TASK', payload: { ...task, elapsedMinutes: 0 } })
+      dispatch({ 
+        type: 'START_TASK', 
+        payload: { 
+          ...task, 
+          status: 'running' as const,
+          elapsedMinutes: 0 
+        } 
+      })
       setShowForm(false)
     } catch (error: any) {
       dispatch({ type: 'SET_ERROR', payload: error.response?.data?.error?.message || '开始任务失败' })
